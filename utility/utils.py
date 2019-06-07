@@ -21,11 +21,14 @@ from reportportal_client import ReportPortalServiceAsync
 from ocs.exceptions import (
     CommandFailed, UnsupportedOSType, TimeoutExpiredError,
 )
+import ocsci
 from ocsci.enums import StatusOfTest
-from ocsci.config import RUN, DEPLOYMENT
 from .aws import AWS
 
 log = logging.getLogger(__name__)
+
+DEPLOYMENT = ocsci.config.DEPLOYMENT
+RUN = ocsci.config.RUN
 
 # variables
 mounting_dir = '/mnt/cephfs/'

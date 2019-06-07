@@ -3,8 +3,12 @@ import logging
 import pytest
 
 from ocs import ocp
-from ocsci.config import ENV_DATA
+
+import ocsci
 from ocsci.testlib import run_this, EcosystemTest, tier1
+
+
+ENV_DATA = ocsci.config.ENV_DATA
 
 
 logger = logging.getLogger(__name__)

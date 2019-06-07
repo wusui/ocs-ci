@@ -8,7 +8,7 @@ from oc.openshift_ops import OCP
 from ocs.exceptions import CommandFailed, CephHealthException
 from ocs.utils import create_oc_resource, apply_oc_resource
 from ocs.constants import TOP_DIR
-from ocsci.config import RUN, ENV_DATA, DEPLOYMENT
+from ocsci import config
 from ocsci.testlib import deployment, EcosystemTest
 import pytest
 from utility import templating
@@ -18,6 +18,10 @@ from utility.utils import run_cmd, get_openshift_installer, get_openshift_client
 from ocs.parallel import parallel
 
 log = logging.getLogger(__name__)
+
+ENV_DATA = config.ENV_DATA
+DEPLOYMENT = config.DEPLOYMENT
+RUN = config.RUN
 
 
 @deployment
