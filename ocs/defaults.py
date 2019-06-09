@@ -65,6 +65,10 @@ ENV_DATA = {
     'rook_image': ROOK_IMAGE,
 }
 
+MON_APP_LABEL = f"app=rook-ceph-mon"
+MDS_APP_LABEL = f"app=rook-ceph-mds"
+TOOL_APP_LABEL = f"app=rook-ceph-tools"
+
 TEMPLATES_DIR = "templates"
 TEMP_YAML = os.path.join(TEMPLATES_DIR, "temp.yaml")
 

@@ -60,6 +60,9 @@ class Pod(OCS):
     def labels(self):
         return self._labels
 
+    def __setattr__(self, key, val):
+        self.__dict__[key] = val
+
     def add_role(self, role):
         """
         Adds a new role for this pod
@@ -133,7 +136,10 @@ def get_all_pods(namespace=None):
     """
     ocp_pod_obj = OCP(kind=kinds.POD, namespace=namespace)
     pods = ocp_pod_obj.get()['items']
-    pod_objs = [Pod(**yaml.safe_load(pod)) for pod in pods]
+    #logging.info(pods)
+    #pod_objs = [Pod(**yaml.safe_load(pod)) for pod in pods]
+    # get() function would have already done a yaml.safe_load()
+    pod_objs = [Pod(**pod) for pod in pods]
     return pod_objs
 
 

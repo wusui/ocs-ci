@@ -27,3 +27,11 @@ class TimeoutExpiredError(Exception):
 
     def __str__(self):
         return f"{self.message}: {self.value}"
+
+
+class MonCountException(Exception):
+    pass
+
+
+class MDSCountException(Exception):
+    pass
