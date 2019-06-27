@@ -4,6 +4,8 @@ Helper functions file for OCS QE
 import base64
 import datetime
 import logging
+import random
+import string
 
 from ocs import constants, defaults, ocp
 from utility import templating
@@ -113,6 +115,8 @@ def create_secret(interface_type):
         )
         del secret_data['data']['kubernetes']
         secret_data['data']['admin'] = get_admin_key()
+        interface = constants.RBD_INTERFACE
+
     elif interface_type == constants.CEPHFILESYSTEM:
         secret_data = templating.load_yaml_to_dict(
             constants.CSI_CEPHFS_SECRET_YAML
@@ -121,9 +125,12 @@ def create_secret(interface_type):
         del secret_data['data']['userKey']
         secret_data['data']['adminID'] = constants.ADMIN_BASE64
         secret_data['data']['adminKey'] = get_admin_key()
+        interface = constants.CEPHFS_INTERFACE
+
     secret_data['metadata']['name'] = create_unique_resource_name(
-        'test', 'secret'
+        f'test-{interface}', 'secret'
     )
+
     secret_data['metadata']['namespace'] = defaults.ROOK_CLUSTER_NAMESPACE
 
     return create_resource(**secret_data, wait=False)
@@ -155,7 +162,7 @@ def create_ceph_block_pool(pool_name=None):
 
 
 def create_storage_class(
-    interface_type, interface_name, secret_name, sc_name=None
+    interface_type, pool_name, secret_name, sc_name=None
 ):
     """
     Create a storage class
@@ -181,6 +188,8 @@ def create_storage_class(
         sc_data['parameters'][
             'csi.storage.k8s.io/node-publish-secret-namespace'
         ] = defaults.ROOK_CLUSTER_NAMESPACE
+        interface = constants.RBD_INTERFACE
+
     elif interface_type == constants.CEPHFILESYSTEM:
         sc_data = templating.load_yaml_to_dict(
             constants.CSI_CEPHFS_STORAGECLASS_YAML
@@ -191,7 +200,9 @@ def create_storage_class(
         sc_data['parameters'][
             'csi.storage.k8s.io/node-stage-secret-namespace'
         ] = defaults.ROOK_CLUSTER_NAMESPACE
-    sc_data['parameters']['pool'] = interface_name
+        interface = constants.CEPHFS_INTERFACE
+
+    sc_data['parameters']['pool'] = pool_name
 
     mons = (
         f'rook-ceph-mon-a.{config.ENV_DATA["cluster_namespace"]}'
@@ -203,7 +214,7 @@ def create_storage_class(
     )
     sc_data['metadata']['name'] = (
         sc_name if sc_name else create_unique_resource_name(
-            'test', 'storageclass'
+            f'test-{interface}', 'storageclass'
         )
     )
     sc_data['metadata']['namespace'] = defaults.ROOK_CLUSTER_NAMESPACE
@@ -226,7 +237,7 @@ def create_storage_class(
     return create_resource(**sc_data, wait=False)
 
 
-def create_pvc(sc_name, pvc_name=None):
+def create_pvc(sc_name ,interface_type, pvc_name=None):
     """
     Create a PVC
 
@@ -239,10 +250,17 @@ def create_pvc(sc_name, pvc_name=None):
         OCS: An OCS instance for the PVC
     """
     pvc_data = templating.load_yaml_to_dict(constants.CSI_PVC_YAML)
-    pvc_data['metadata']['name'] = (
-        pvc_name if pvc_name else create_unique_resource_name(
-            'test', 'pvc'
+    if interface_type == constants.CEPHBLOCKPOOL:
+        component = constants.RBD_INTERFACE
+
+    elif interface_type == constants.CEPHFILESYSTEM:
+       component = constants.CEPHFS_INTERFACE
+    else:
+        component = ''.join(
+            [random.choice(string.ascii_lowercase) for _ in range(4)]
         )
+    pvc_data['metadata']['name'] = pvc_name if pvc_name else create_unique_resource_name(
+        f'test-{component}', 'pvc'
     )
     pvc_data['metadata']['namespace'] = defaults.ROOK_CLUSTER_NAMESPACE
     pvc_data['spec']['storageClassName'] = sc_name
@@ -457,3 +475,39 @@ def delete_all_cephfilesystem():
     for item in cephfs_dict:
         assert CFS.delete(resource_name=item.get('metadata').get('name'))
     return True
+
+def get_all_pvs():
+    """
+    Gets all pv in given namespace
+
+    Returns:
+         dict: Dict of all pvc in namespaces
+    """
+
+    ocp_pv_obj = ocp.OCP(
+        kind=constants.PV, namespace=defaults.ROOK_CLUSTER_NAMESPACE)
+    output = ocp_pv_obj.get()
+    return output
+
+
+def validate_pv_delete(sc_name):
+    """
+    validates if pv is deleted after pvc deletion
+
+    Returns:
+        bool: True if deletion is successful
+    """
+
+    ocp_pv_list = get_all_pvs()
+    pv_list = ocp_pv_list['items']
+    if not pv_list:
+        for item in pv_list:
+            if sc_name == item['spec']['storageClassName']:
+                if item['spec']['persistentVolumeReclaimPolicy'] == 'Delete':
+                    return False
+                elif item['spec']['persistentVolumeReclaimPolicy'] == 'Retain':
+                    return True
+            else:
+                return True
+    else:
+        return True
