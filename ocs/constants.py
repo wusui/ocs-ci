@@ -94,3 +94,7 @@ CSI_CEPHFS_PVC_YAML = os.path.join(
 CSI_RBD_PVC_YAML = os.path.join(
     TEMPLATE_CSI_RBD_DIR, "pvc.yaml"
 )
+
+# components
+RBD_INTERFACE = 'rbd'
+CEPHFS_INTERFACE = 'cephfs'
