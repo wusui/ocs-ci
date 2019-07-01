@@ -1,7 +1,7 @@
 import logging
 import pytest
 
-from ocs_ci.framework.testlib import tier1, ManageTest
+from ocs_ci.framework.testlib import ManageTest
 from ocs_ci.ocs.cluster import CephCluster
 
 
@@ -43,7 +43,6 @@ def teardown(self):
     self.cluster.toolbox.exec_ceph_cmd(del_cmd)
 
 
-@tier1
 @pytest.mark.usefixtures(
     test_fixture.__name__,
 )
