@@ -44,30 +44,30 @@ unit tests:
 deploy:
   stage: deploy
   script:
-    - run-ci -m deployment --deploy --ocsci-conf=ocs-ci.yaml --cluster-path=cluster
+    - run-ci -m deployment --deploy --ocsci-conf=ocs-ci.yaml --cluster-name=$CLUSTER_USER-ocs-ci-$CI_PIPELINE_ID --cluster-path=cluster --collect-logs
   artifacts:
     when: always
     paths:
       - ocs-ci.yaml
       - cluster/
-      - logs/
+      - logs/*
       - bin/oc
 
 tier1:
   stage: tier1
   script:
-    - run-ci -m tier1 --ocsci-conf=ocs-ci.yaml --cluster-path=cluster
+    - run-ci -m tier1 --ocsci-conf=ocs-ci.yaml --cluster-name=$CLUSTER_USER-ocs-ci-$CI_PIPELINE_ID --cluster-path=cluster --collect-logs
   artifacts:
     when: always
     paths:
-      - logs/
+      - logs/*
 
 teardown:
   stage: teardown
   when: always
   script:
-    - run-ci -m deployment --teardown --ocsci-conf=ocs-ci.yaml --cluster-path=cluster
+    - run-ci -m deployment --teardown --ocsci-conf=ocs-ci.yaml --cluster-name=$CLUSTER_USER-ocs-ci-$CI_PIPELINE_ID --cluster-path=cluster --collect-logs
   artifacts:
     when: always
     paths:
-      - logs/
+      - logs/*
