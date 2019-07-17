@@ -207,9 +207,9 @@ def pytest_collection_modifyitems(session, config, items):
 def pytest_runtest_makereport(item, call):
     outcome = yield
     rep = outcome.get_result()
-    # we only look at actual failing test calls, not setup/teardown
+    # look at failed test cases *or* setup
     if (
-        rep.when == "call"
+        rep.when in ('setup', 'call')
         and rep.failed
         and ocsci_config.RUN.get('cli_params').get('collect-logs')
     ):
