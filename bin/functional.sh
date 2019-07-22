@@ -28,6 +28,8 @@ ENV_DATA:
   cluster_name: "$CLUSTER_USER-ocs-ci-$CI_PIPELINE_ID"
   region: $AWS_REGION
   base_domain: $AWS_DOMAIN
+  rook_image: "$ROOK_IMAGE"
+  ceph_image: "$CEPH_IMAGE"
 EOF
 }
 
