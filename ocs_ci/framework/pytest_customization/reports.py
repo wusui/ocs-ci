@@ -36,16 +36,9 @@ def pytest_runtest_makereport(item, call):
     extra = getattr(report, 'extra', [])
 
     if report.when == 'call':
-        handlers = logging.getLogger().handlers
-        logging.info(str(handlers))
-        if len(handlers) > 1:
-            log_file = handlers[1].baseFilename
-            extra.append(pytest_html.extras.url(log_file, name='Log File'))
-            report.extra = extra
-        else:
-            logging.warn("pytest_runtest_makereport: Logger had less than 2 handlers!")
-            logging.warn(f"item.function.__name__: {item.function.__name__}")
-            logging.warn(f"item.name: {item.name}")
+        log_file = logging.getLogger().handlers[1].baseFilename
+        extra.append(pytest_html.extras.url(log_file, name='Log File'))
+        report.extra = extra
 
 
 def pytest_sessionfinish(session, exitstatus):
