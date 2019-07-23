@@ -205,8 +205,11 @@ def pytest_collection_modifyitems(session, config, items):
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
+    log.info(f"pytest_runtest_makereport item: {item!s}")
+    log.info(f"pytest_runtest_makereport item.name: {item.name}")
     outcome = yield
     rep = outcome.get_result()
+    log.info(f"pytest_runtest_makereport result: {outcome!s}")
     # look at failed test cases *or* setup
     if (
         rep.when in ('setup', 'call')
