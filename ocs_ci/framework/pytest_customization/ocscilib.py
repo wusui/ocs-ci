@@ -212,7 +212,7 @@ def pytest_runtest_makereport(item, call):
     log.info(f"pytest_runtest_makereport result: {outcome!s}")
     # look at failed test cases *or* setup
     if (
-        rep.when in ('setup', 'call')
+        rep == 'call'
         and rep.failed
         and ocsci_config.RUN.get('cli_params').get('collect-logs')
     ):
