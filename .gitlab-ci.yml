@@ -56,7 +56,7 @@ deploy:
 tier1:
   stage: tier1
   script:
-    - run-ci -m tier1 --ocsci-conf=ocs-ci.yaml --cluster-name=$CLUSTER_USER-ocs-ci-$CI_PIPELINE_ID --cluster-path=cluster --collect-logs
+    - run-ci -m tier1 --ocsci-conf=ocs-ci.yaml --cluster-name=$CLUSTER_USER-ocs-ci-$CI_PIPELINE_ID --cluster-path=cluster --self-contained-html --collect-logs
   artifacts:
     when: always
     paths:
